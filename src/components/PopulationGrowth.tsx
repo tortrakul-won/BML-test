@@ -1,33 +1,55 @@
-import Papa from "papaparse";
+import Papa, { ParseResult } from "papaparse";
 import { useEffect, useMemo, useState } from "react";
-import fs from "fs";
-import pgData, { IpgData } from "@/data/pg";
+import { IpgData } from "@/data/pg";
 
 export default function PopulationGrowth() {
   const [isHydrated, setIsHydrated] = useState(false);
-  const [district, setDistrict] = useState(pgData[0].name);
   const [yearFrom, setYearFrom] = useState("2550");
   const [yearTo, setYearTo] = useState("2559");
+  const [csvData, setCsvData] = useState(Array<IpgData>);
+  const [district, setDistrict] = useState(csvData?.[0]?.name ?? "");
   const yearRange = [2550, 2551, 2552, 2553, 2554, 2555, 2556, 2557, 2558, 2559];
   useEffect(() => {
     setIsHydrated(true);
   }, []);
 
+  useEffect(() => {
+    // Load the static CSV file
+    const csvFilePath = "/assets/csv/bkk_population_growth.csv";
+    fetch(csvFilePath)
+      .then((response) => response.text())
+      .then((data) => {
+        const result: ParseResult<IpgData> = Papa.parse(data, {
+          header: true, // Use the first row as headers
+          skipEmptyLines: true,
+        });
+        setCsvData(result.data);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (csvData) {
+      setDistrict(csvData?.[0]?.name);
+    }
+  }, [csvData]);
+
   const maxValue = useMemo(() => {
     {
-      let dataFrom = pgData.map((e) => parseFloat(e[yearFrom as keyof IpgData]));
-      let dataTo = pgData.map((e) => parseFloat(e[yearTo as keyof IpgData]));
-      return Math.max(...dataFrom, ...dataTo);
+      let districtData = { ...csvData.find((f) => f.name === district) };
+      delete districtData.name;
+      delete districtData.dcode;
+      return Math.max(...Object.values(districtData).map((m) => parseFloat(m)));
     }
-  }, [yearFrom, yearTo]);
+  }, [yearFrom, yearTo, district]);
 
   const minValue = useMemo(() => {
     {
-      let dataFrom = pgData.map((e) => parseFloat(e[yearFrom as keyof IpgData]));
-      let dataTo = pgData.map((e) => parseFloat(e[yearTo as keyof IpgData]));
-      return Math.min(...dataFrom, ...dataTo);
+      let districtData = { ...csvData.find((f) => f.name === district) };
+      delete districtData.name;
+      delete districtData.dcode;
+      return Math.min(...Object.values(districtData).map((m) => parseFloat(m)));
     }
-  }, [yearFrom, yearTo]);
+  }, [yearFrom, yearTo, district]);
 
   return (
     <>
@@ -39,8 +61,8 @@ export default function PopulationGrowth() {
               <label htmlFor="districts" className="text-white text-[14px] my-3 flex-1 w-full mr-3">
                 เขต
               </label>
-              <select id="districts" name="districts">
-                {pgData
+              <select id="districts" name="districts" onChange={(e) => setDistrict(e.target.value)}>
+                {csvData
                   ?.sort((e) => parseInt(e.dcode))
                   .reverse()
                   .map((e) => {
