@@ -16,7 +16,7 @@ export default function PopulationGrowth() {
 
   //Load CSV on Mount
   useEffect(() => {
-    const csvFilePath = "/assets/csv/bkk_population_growth(1).csv";
+    const csvFilePath = "/assets/csv/bkk_population_growth.csv";
     fetch(csvFilePath)
       .then((response) => response.text())
       .then((data) => {
