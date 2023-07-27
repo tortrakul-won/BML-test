@@ -9,7 +9,6 @@ export default function PopulationGrowth() {
   const [csvData, setCsvData] = useState(Array<IpgData>);
   const [district, setDistrict] = useState(csvData?.[0]?.name ?? "");
   const [districtData, setDistrictData] = useState<{ [key: string]: number }>();
-  // const yearRange = [2550, 2551, 2552, 2553, 2554, 2555, 2556, 2557, 2558, 2559];
   const yearRange = useRef([2550, 2551, 2552, 2553, 2554, 2555, 2556, 2557, 2558, 2559]);
   useEffect(() => {
     setIsHydrated(true);
@@ -40,7 +39,6 @@ export default function PopulationGrowth() {
   }, [csvData]);
 
   //cascade setting value
-  //TODO side effect of select option change
   useEffect(() => {
     if (yearFrom > yearTo) {
       const yfIndex = yearRange.current.indexOf(yearFrom);
@@ -79,7 +77,6 @@ export default function PopulationGrowth() {
 
       if (vNeg.length === 0 && vPos.length === 0) return {};
       if (vNeg.length > 0 && vPos.length > 0) {
-        console.log("both pos and neg");
         zeroPoint = (((0 - minValue) / (maxValue - minValue)) * 100).toFixed(2);
 
         plotData = Object.fromEntries(
@@ -91,48 +88,37 @@ export default function PopulationGrowth() {
           ])
         );
       } else if (vPos.length > 0) {
-        console.log("pos");
         zeroPoint = 0;
         zeroPoint = 0;
         plotData = Object.fromEntries(
           Object.entries(districtData).map(([k, v]) => [k, (((v - 0) / (vPosMax - 0)) * 100).toFixed(2)])
         );
       } else {
-        console.log("neg");
         zeroPoint = 100;
         plotData = Object.fromEntries(
           Object.entries(districtData).map(([k, v]) => [k, (((v - vNegMin) / (0 - vNegMin)) * 100).toFixed(2)])
         );
       }
-      console.log("plotData");
-      console.log(plotData);
 
       return { minValue, maxValue, zeroPoint, plotData };
     }
   }, [districtData]);
 
   function createBarRow(point: string, raw: string) {
-    console.log("point " + point);
     if (parseFloat(point) < 0) {
-      console.log("red");
       return (
         <>
           <span className="flex justify-end">
-            <span className="bg-[#ED2E7C] h-[75%]" style={{ width: `${point.slice(1)}%` }}>
-              {/* {point + " " + raw} */}
-            </span>
+            <span className="bg-[#ED2E7C] h-[75%]" style={{ width: `${point.slice(1)}%` }}></span>
           </span>
           <span></span>
         </>
       );
     } else {
-      console.log("blue");
       return (
         <>
           <span></span>
-          <span className="bg-[#ED2E7C] h-[75%]" style={{ width: `${point}%` }}>
-            {/* {point + " " + raw} */}
-          </span>
+          <span className="bg-[#ED2E7C] h-[75%]" style={{ width: `${point}%` }}></span>
         </>
       );
     }
@@ -210,7 +196,6 @@ export default function PopulationGrowth() {
                     <span className={"grid"} style={{ gridTemplateColumns: `${zeroPoint}% auto` }}>
                       {createBarRow(plotData[year], String(districtData[year]))}
                     </span>
-                    {/* <span className="w-full text-center">{percent}</span> */}
                   </>
                 );
               })}
