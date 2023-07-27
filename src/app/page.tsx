@@ -1,12 +1,12 @@
 "use client";
 
 import Sources from "@/components/Sources";
-import PopulationGrowth from "../components/PopulationGrowth";
+import PopulationGrowth from "../components/PopulationGrowth/PopulationGrowth";
 import Link from "next/link";
 
 export default function Home() {
   return (
-    <main className="flex flex-col align-middle items-center mx-[10vw]">
+    <main className="flex flex-col align-middle items-center md:mx-[20vw] mx-[10vw]">
       <span className="text-white text-[28px] font-bold my-3 flex-1 w-full">
         สถิติประชากรกรุงเทพฯ พ.ศ. 2550 - 2559
       </span>
